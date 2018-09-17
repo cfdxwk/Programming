@@ -1,0 +1,70 @@
+/* http://codeforces.com/contest/1042/problem/D */
+/* sqrt decomposition + binary search */
+
+#include <bits/stdc++.h>
+#define ll long long
+#define pb push_back
+using namespace std;
+
+
+
+int main()
+{
+    
+    ll n,t,ans=0;
+    cin>>n>>t;
+    vector<ll>v(n+1);
+    ll sq=sqrt(n)+1;
+    
+    for(ll i=0;i<n;i++){
+        cin>>v[i];
+    }
+    
+    vector<vector<ll> >a;
+    vector<ll>tmp;
+    ll ind=1;
+    for(ll i=0;i<n;i++){
+        if(i%sq==0 && i!=0){
+            a.pb(tmp);
+            tmp.clear();
+        }
+        tmp.pb(v[i]);
+    }
+    
+    if(tmp.size()){
+        a.pb(tmp);
+    }
+    
+    vector<ll>pre[a.size()+1];
+    
+    vector<ll>su(a.size()+1,0);
+    
+    for(int i=0;i<a.size();i++){
+        ll sum=0;
+        for(int j=0;j<a[i].size();j++){
+            sum+=a[i][j];
+            pre[i].pb(sum);
+        }
+        su[i]=sum;
+        sort(pre[i].begin(),pre[i].end());
+    }
+    
+    
+    for(int i=0;i<n;i++){
+        ll blk=i/sq,sum=0,ind=i%sq;
+        for(int j=ind;j<a[blk].size();j++){
+            sum+=a[blk][j];
+            if(sum<t)
+                ans++;
+        }
+        
+        for(int j=blk+1;j<a.size();j++){
+            auto it=lower_bound(pre[j].begin(),pre[j].end(),t-sum);
+            ans+=it-pre[j].begin();
+            sum+=su[j];
+        }
+    }
+    cout<<ans;
+  
+    return 0;
+}
