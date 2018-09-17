@@ -1,0 +1,88 @@
+/* https://www.codechef.com/ISCC2018/problems/T29/ */
+/* sqrt decomposition+ binary search */
+
+#include<bits/stdc++.h>
+#define pb push_back
+#define ll long long
+using namespace std;
+ 
+ 
+ 
+int main(){
+int n,q;
+cin>>n>>q;
+vector<int>v(n);
+for(int i=0;i<n;i++){
+    cin>>v[i];
+    v[i]=1e9-v[i];
+}
+ 
+int chunk=sqrt(n),blockind=-1;
+vector<int>s[n];
+vector<int>tmp;
+for(int i=0;i<n;i++){
+    if(i%chunk==0){
+        sort(tmp.begin(),tmp.end());
+        for(int j=0;j<(int)tmp.size();j++){
+            s[blockind].pb(tmp[j]);
+        }
+        tmp.clear();
+        blockind++;
+    }
+    tmp.pb(v[i]);
+}
+   // cout<<blockind<<endl;
+ 
+while(q--){
+    int l,r,k;
+    cin>>l>>r>>k;
+    l--,r--;
+    int dist=1e9+9,val=1e9+9;
+    // looking for the element that is more closer to k
+  while(l<r && l!=0 && l%chunk!=0){
+      if(abs(v[l]-k)<dist)
+          dist=abs(v[l]-k),val=1e9-v[l];
+      else if(abs(v[l]-k)==dist)
+          dist=abs(v[l]-k),val=min((int)1e9-v[l],val);
+      l++;
+  }
+    
+    while(l+chunk<=r){
+        int block=l/chunk;
+        int ind1=lower_bound(s[block].begin(),s[block].end(),k)-s[block].begin();
+        int ind2=upper_bound(s[block].begin(),s[block].end(),k)-s[block].begin();
+        int sz=s[block].size();
+        if(ind1==sz)ind1--,ind2--;
+        if(ind1>=0 && s[block][ind1]==k){    // k found
+            dist=0,val=1e9-s[block][ind1];
+        }
+        else{    // k is not there
+            ind1--;
+            if(ind1>=0 ){
+                if(abs(s[block][ind1]-k)<dist)
+                    dist=abs(s[block][ind1]-k),val=1e9-s[block][ind1];
+                else if(abs(s[block][ind1]-k)==dist)
+                dist=abs(s[block][ind1]-k),val=min(val,(int)1e9-s[block][ind1]);
+            }
+            if(ind2>=0 ){
+                if(abs(s[block][ind2]-k)<dist)
+                    dist=abs(s[block][ind2]-k),val=1e9-s[block][ind2];
+                else if(abs(s[block][ind2]-k)==dist)
+                dist=abs(s[block][ind2]-k),val=min(val,(int)1e9-s[block][ind2]);
+            }
+        }
+        l+=chunk;
+    }
+    
+    while(l<=r){
+        if(abs(v[l]-k)<dist)
+          dist=abs(v[l]-k),val=1e9-v[l];
+        else if(abs(v[l]-k)==dist)
+          dist=abs(v[l]-k),val=min((int)1e9-v[l],val);
+      l++;
+    }
+    cout<<val<<"\n";
+}
+ 
+return 0;
+}
